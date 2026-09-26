@@ -24,7 +24,7 @@ const TimeSlotCell: React.FC<{ status: SlotStatus; onClick: () => Promise<boolea
         onClick={status.isOccupied ? undefined : onClick} // Disabilita l'interazione se occupato
     >
       {/* Mostra l'orario e lo stato */}
-      <span className="font-medium mr-2">{timeString}</span> {/* CORREZIONE: Rimosso il <br>/<span> superfluo */}
+      <span className="font-medium mr-2">{timeString}</span>
       {status.isOccupied ? (
         <div className="text-red-700 font-bold flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-triangle mr-1"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -45,7 +45,7 @@ const TimeSlotCell: React.FC<{ status: SlotStatus; onClick: () => Promise<boolea
 const TimeSlotGrid: React.FC = () => {
 
   // --- Configurazione Fissa (Come richiesto) ---
-  const daysOfWeek = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat']; 
+  const daysOfWeek = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Solo i giorni richiesti
   const startHour = 8; // 08:00
   const endHour = 18; // Fino a questo orario (l'ultimo slot termina alle 18:00)
   const intervalMinutes = 30;
@@ -143,7 +143,7 @@ const renderDayGrid = (dayName: string) => {
       {/* Header Giorno */}
       <div className={`p-4 text-center font-bold flex items-center justify-center ${dayName.toLowerCase().includes('sat') ? 'bg-primary-pink/10' : 'bg-gray-50'} border-b`}>
         <CalendarDays className="w-5 h-5 mr-2" /> {dayName}
-      </div >
+      </div>
 
       {/* Corpo della Griglia Oraria */}
       <div className="divide-y divide-gray-100">
@@ -155,7 +155,7 @@ const renderDayGrid = (dayName: string) => {
           /> 
         ))}
       </div>
-    </div>
+    </div >
   );
 };
 
@@ -163,7 +163,7 @@ const renderDayGrid = (dayName: string) => {
 const TimeSlotGrid: React.FC = () => {
 
   // --- Configurazione Fissa (Come richiesto) ---
-  const daysOfWeek = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat']; 
+  const daysOfWeek = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Solo i giorni richiesti
   const startHour = 8; // 08:00
   const endHour = 18; // Fino a questo orario (l'ultimo slot termina alle 18:00)
   const intervalMinutes = 30;
@@ -209,14 +209,14 @@ const TimeSlotGrid: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {daysOfWeek.map(day => renderDayGrid(day))}
-      </div>
+      </div >
       
       <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-primary-pink text-sm">
           <p className="font-bold">✨ Stato del Sistema:</p>
           <ul className="list-disc list-inside mt-2 space-y-1">
               <li><strong style="color: green;">Visualizzazione:</strong> La griglia è ora dinamica e si connette al backend API.</li>
               <li><strong style="color: blue;">Booking:</strong> Cliccare su uno slot verde invierà una richiesta POST all'API per prenotare.</li>
-              <li><strong style="color: orange;">Prossimo Passo:</strong> Configurare Render! (Se hai eseguito i passaggi Git, il codice è pronto e la sola cosa che manca è l'hosting!)</li>
+              <li><strong style="color: orange;">Prossimo Passo:</strong> Configurare Render! (Se hai eseguito i passaggi Git, il codice è pronto e la sola cosa che manca è l'hosting!).</li>
           </ul>
       </div>
 
