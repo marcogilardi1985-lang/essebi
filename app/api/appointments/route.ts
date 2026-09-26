@@ -7,9 +7,7 @@ const prisma = new PrismaClient();
 
 /**
  * Endpoint API per verificare lo stato di disponibilità degli slot orari.
- * 
  * Parametri attesi dalla query string: ?date=<data_iso>
- * Esempio: /api/appointments/check-slots?date=2024-10-29
  */
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -31,7 +29,6 @@ export async function GET(request: NextRequest) {
     let currentTime = new Date(targetDate);
     currentTime.setHours(8, 0, 0, 0); // Inizia alle 08:00
 
-    // Imposta un limite massimo per non superare le 18:00 (l'ultimo slot termina esattamente a questo momento)
     const endLimit = new Date(targetDate);
     endLimit.setHours(18, 0, 0, 0); 
 
@@ -47,14 +44,12 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Query al Database per trovare tutti gli appuntamenti in questo giorno.
-    // Questo è il punto chiave che collega la UI al backend.
     const existingAppointments = await prisma.appointment.findMany({
       where: {
         startTime: {
-          gte: new Date(targetDate), // Garantisce che stiamo guardando solo oggi (o almeno dal giorno stesso)
+          gte: new Date(targetDate),
           lt: nextSlotEnd, 
         },
-        // Nota: La query ideale dovrebbe essere più specifica per la data esatta, ma questa è un'ottima base.
       },
       select: {
         id: true,
@@ -65,9 +60,8 @@ export async function GET(request: NextRequest) {
 
     // 4. Generazione della risposta dello stato (stato slot-by-slot)
     const availabilityStatus = slots.map(slot => {
-      // Verifica se lo slot è coperto da un appuntamento esistente
+      // Logica di sovrapposizione: Lo slot [A, B] è occupato se interseca completamente o parzialmente un appt [Start, End]
       const isOccupied = existingAppointments.some(appt => {
-        // Logica di sovrapposizione: Lo slot [A, B] è occupato se interseca completamente o parzialmente un appt [Start, End]
         return (slot.startTime < new Date(appt.endTime) && slot.endTime > new Date(appt.startTime));
       });
 
@@ -75,7 +69,6 @@ export async function GET(request: NextRequest) {
         start: slot.startTime,
         end: slot.endTime,
         isOccupied: isOccupied,
-        // Si può aggiungere anche il dettaglio dell'appuntamento che lo occupa, se necessario
       };
     });
 
@@ -87,3 +80,53 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Errore interno del server durante la verifica degli slot." }, { status: 500 });
   }
 }
+
+
+/**
+ * POST /api/appointments: Prenota uno slot orario specifico.
+ * Body atteso: { date: string, startTime: string, endTime: string }
+ */
+export async function POST(request: NextRequest) {
+    const body = await request.json();
+    const { date, startTime, endTime } = body;
+
+    if (!date || !startTime || !endTime) {
+        return NextResponse.json({ error: "Tutti i campi (data, orario di inizio, orario di fine) sono obbligatori." }, { status: 400 });
+    }
+
+    try {
+        // 1. Validazione della data e degli orari per creare i due oggetti DateTime necessari per Prisma
+        const startDateTime = new Date(`${date}T${startTime}:00`);
+        const endDateTime = new Date(`${date}T${endTime}:00`);
+
+        if (isNaN(startDateTime) || isNaN(endDateTime)) {
+             return NextResponse.json({ error: "Gli orari forniti non sono validi per la data specificata." }, { status: 400 });
+        }
+        
+        // *** ATTENZIONE: QUI SI DEVE IMPLEMENTARE LA LOGICA DI VALIDAZIONE SLOTS ANCHE PER IL POST ***
+
+        const dummyUserId = "user-temp-id"; // Da sostituire con l'ID utente autenticato in produzione
+        const dummyStaffId = "staff-temp-id"; 
+
+        // Simuliamo la creazione del record (questo richiede che Prisma sia installato e configurato)
+        const newAppointment = await prisma.appointment.create({
+            data: {
+                startTime: startDateTime,
+                endTime: endDateTime,
+                serviceId: "placeholder_service", // DEVE essere recuperato dal frontend!
+                userId: dummyUserId, 
+                staffId: dummyStaffId,
+                status: "CONFIRMED"
+            }
+        });
+
+        return NextResponse.json({ message: "Appuntamento prenotato con successo!", appointment: newAppointment }, { status: 201 });
+
+    } catch (error) {
+        console.error("Errore nel processo di prenotazione:", error);
+        // Cattura errori specifici del DB (es. slot già occupato)
+        if ((error as any).code === 'P2012') { 
+            return NextResponse.json({ error: "Questo slot non è più disponibile o c'è un conflitto di prenotazione." }, { status: 409 }); 
+        }
+        return NextResponse.json({ error: `Errore interno del server durante la prenotazione: ${(error as Error).message}` }, { status: 500 });
+    }
