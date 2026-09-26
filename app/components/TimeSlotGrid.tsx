@@ -11,7 +11,7 @@ interface SlotStatus {
     isOccupied: boolean;
 }
 
-// Componente per visualizzare uno slot singolo
+// Componente per visualizzare uno slot singolo (VISUALE)
 const TimeSlotCell: React.FC<{ status: SlotStatus; onClick: () => Promise<boolean> }> = ({ status, onClick }) => {
   const timeString = `${status.start.getHours().toString().padStart(2, '0')}:${status.start.getMinutes().toString().padStart(2, '0')}-${status.end.getHours().toString().padStart(2, '0')}:${status.end.getMinutes().toString().padStart(2, '0')}`;
   
@@ -24,7 +24,7 @@ const TimeSlotCell: React.FC<{ status: SlotStatus; onClick: () => Promise<boolea
         onClick={status.isOccupied ? undefined : onClick} // Disabilita l'interazione se occupato
     >
       {/* Mostra l'orario e lo stato */}
-      <span className="font-medium mr-2">{timeString}</span>
+      <span className="font-medium mr-2">{timeString}</span> {/* CORREZIONE SINTASSI: Rimosso il <br>/<span> superfluo */}
       {status.isOccupied ? (
         <div className="text-red-700 font-bold flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-triangle mr-1"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -84,7 +84,7 @@ const TimeSlotGrid: React.FC = () => {
 
   // Handler per prenotare uno slot cliccabile
   const handleBooking = async (slot: SlotStatus) => {
-    if (!window.confirm(`Sei sicuro di voler prenotare lo slot ${`${Math.floor(slot.start.getHours())}:${String(slot.start.getMinutes()).padStart(2, '0')}`}-${`${Math.floor(slot.end.getHours())}:${String(slot.end.getMinutes()).padStart(2, '0')}`}?`)) {
+    if (!window.confirm(`Sei sicuro di voler prenotare lo slot ${`${Math.floor(slot.start.getHours())}:${String(slot.start.getMinutes()).padStart(2, '0')}-${`${Math.floor(slot.end.getHours())}:${String(slot.end.getMinutes()).padStart(2, '0')}`}?`)) {
         return false;
     }
 
@@ -136,7 +136,7 @@ const TimeSlotGrid: React.FC = () => {
 
 // Funzione generica per renderizzare la griglia per un giorno specifico
 const renderDayGrid = (dayName: string) => {
-  if (!slotsData.length && !loading) return null; // Non rendi nulla se non ci sono dati caricati e non siamo in fase di caricamento
+  if (!slotsData.length && !loading) return null; 
 
   return (
     <div className="col-span-1 bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
@@ -214,9 +214,9 @@ const TimeSlotGrid: React.FC = () => {
       <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-primary-pink text-sm">
           <p className="font-bold">✨ Stato del Sistema:</p>
           <ul className="list-disc list-inside mt-2 space-y-1">
-              <li><strong style="color: green;">Visualizzazione:</strong> La griglia è ora dinamica e si connette al backend API.</li>
-              <li><strong style="color: blue;">Booking:</strong> Cliccare su uno slot verde invierà una richiesta POST all'API per prenotare.</li>
-              <li><strong style="color: orange;">Prossimo Passo:</strong> Configurare Render! (Se hai eseguito i passaggi Git, il codice è pronto e la sola cosa che manca è l'hosting!).</li>
+              <li>Visualizzazione: La griglia è ora dinamica e si connette al backend API.</li>
+              <li>Booking: Cliccare su uno slot verde invierà una richiesta POST all'API per prenotare.</li>
+              <li>Prossimo Passo: Configurare Render! (Se hai eseguito i passaggi Git, il codice è pronto e la sola cosa che manca è l'hosting!).</li>
           </ul>
       </div>
 
@@ -224,4 +224,4 @@ const TimeSlotGrid: React.FC = () => {
   );
 };
 
-export default TimeSlotGrid;
+export default TimeSlotGrid;<|"|>,path:<|"|>app/components/TimeSlotGrid.tsx<|"|>}<tool_call|>

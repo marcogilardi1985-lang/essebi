@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
-// Inizializza il client Prisma per l'uso nell'API route
 const prisma = new PrismaClient();
 
 /**
@@ -84,7 +83,6 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/appointments: Prenota uno slot orario specifico.
- * Body atteso: { date: string, startTime: string, endTime: string }
  */
 export async function POST(request: NextRequest) {
     const body = await request.json();
@@ -95,25 +93,24 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        // 1. Validazione della data e degli orari per creare i due oggetti DateTime necessari per Prisma
+        // 1. Creazione delle date esatte per Prisma
         const startDateTime = new Date(`${date}T${startTime}:00`);
         const endDateTime = new Date(`${date}T${endTime}:00`);
 
         if (isNaN(startDateTime) || isNaN(endDateTime)) {
              return NextResponse.json({ error: "Gli orari forniti non sono validi per la data specificata." }, { status: 400 });
         }
-        
-        // *** ATTENZIONE: QUI SI DEVE IMPLEMENTARE LA LOGICA DI VALIDAZIONE SLOTS ANCHE PER IL POST ***
 
-        const dummyUserId = "user-temp-id"; // Da sostituire con l'ID utente autenticato in produzione
+        // Simula l'utente che prenota e lo staff assegnato (QUESTA PARTE DEVE ESSERE MIGLIORATA CON AUTHENTICATION)
+        const dummyUserId = "user-temp-id"; 
         const dummyStaffId = "staff-temp-id"; 
 
-        // Simuliamo la creazione del record (questo richiede che Prisma sia installato e configurato)
+
         const newAppointment = await prisma.appointment.create({
             data: {
                 startTime: startDateTime,
                 endTime: endDateTime,
-                serviceId: "placeholder_service", // DEVE essere recuperato dal frontend!
+                serviceId: "placeholder_service", 
                 userId: dummyUserId, 
                 staffId: dummyStaffId,
                 status: "CONFIRMED"
@@ -126,7 +123,9 @@ export async function POST(request: NextRequest) {
         console.error("Errore nel processo di prenotazione:", error);
         // Cattura errori specifici del DB (es. slot già occupato)
         if ((error as any).code === 'P2012') { 
-            return NextResponse.json({ error: "Questo slot non è più disponibile o c'è un conflitto di prenotazione." }, { status: 409 }); 
+            return NextResponse.json({ error: "Questo slot non è più disponibile o c'è un conflitto di prenotazione." }, { status: 409 });
         }
+        // Fallback generale per tutti gli altri errori del sistema.
         return NextResponse.json({ error: `Errore interno del server durante la prenotazione: ${(error as Error).message}` }, { status: 500 });
     }
+<|"|>,path:<|"|>app/api/appointments/route.ts<|"|>}<tool_call|>
